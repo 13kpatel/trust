@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Trust Manager">
+<title>Trust Manager</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#1e293b;--accent:#1e40af;--muted:#64748b;--border:#e5e1dc;--bg:#f7f5f2;--card:#ffffff;--warm:#faf9f7;--green:#059669;--red:#dc2626;--amber:#d97706}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--navy);min-height:100vh;-webkit-text-size-adjust:100%}
+h1,h2,h3{font-weight:700}
+button{font-family:inherit}
+
+.header{background:var(–navy);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:50}
+.header h1{color:#fff;font-size:18px}
+.header-sub{font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:1px;margin-top:2px}
+.header-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.header select{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:6px 10px;color:#fff;font-size:13px;outline:none}
+.header select option{color:#000}
+
+.btn{border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;padding:10px 20px;transition:opacity 0.2s}
+.btn:active{opacity:0.7}
+.btn-primary{background:var(–navy);color:#fff}
+.btn-accent{background:var(–accent);color:#fff}
+.btn-ghost{background:transparent;color:var(–muted);border:1px solid var(–border)}
+.btn-danger{background:transparent;color:var(–red);border:1px solid #fecaca}
+.btn-header{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
+.btn-sm{padding:6px 14px;font-size:12px}
+
+.card{background:var(–card);border:1px solid var(–border);border-radius:12px;padding:18px 20px;margin-bottom:10px}
+.card-clickable{cursor:pointer;transition:border-color 0.2s}
+.card-clickable:active{border-color:#cbd5e1}
+
+.tabs{display:flex;border-bottom:1px solid var(–border);padding:14px 20px 0;overflow-x:auto;gap:0;-webkit-overflow-scrolling:touch}
+.tab{padding:8px 0;margin-right:20px;border:none;background:none;border-bottom:2px solid transparent;color:var(–muted);cursor:pointer;font-size:13px;font-weight:500;white-space:nowrap}
+.tab.active{color:var(–navy);font-weight:700;border-bottom-color:var(–navy)}
+
+.content{max-width:960px;margin:0 auto;padding:20px 20px 60px}
+
+.label{font-size:11px;font-weight:600;color:var(–muted);margin-bottom:5px;display:block;letter-spacing:0.3px}
+.input,.select,.textarea{background:var(–warm);border:1px solid var(–border);border-radius:8px;padding:10px 14px;color:var(–navy);font-size:14px;font-family:inherit;outline:none;width:100%;box-sizing:border-box}
+.input:focus,.select:focus,.textarea:focus{border-color:var(–accent)}
+.select{cursor:pointer;-webkit-appearance:none;appearance:none}
+.textarea{min-height:80px;resize:vertical;line-height:1.6}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px}
+.form-group{margin-bottom:14px}
+.form-actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.kpi{text-align:left}
+.kpi-label{font-size:10px;letter-spacing:1.5px;color:var(–muted);text-transform:uppercase;margin-bottom:4px}
+.kpi-value{font-size:20px;font-weight:700}
+
+.badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;display:inline-block}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal{background:#fff;border-radius:16px;padding:24px;max-width:540px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.18)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-header h3{font-size:18px}
+.modal-close{background:none;border:none;font-size:22px;color:var(–muted);cursor:pointer;padding:4px}
+
+.empty{text-align:center;padding:50px 20px;color:var(–muted)}
+.empty-icon{font-size:42px;margin-bottom:14px}
+
+.tx-row{padding:12px 0;border-bottom:1px solid var(–border);display:flex;justify-content:space-between;align-items:center}
+.tx-label{font-size:13px;font-weight:600}
+.tx-sub{font-size:11px;color:var(–muted);margin-top:2px}
+.tx-amount{font-weight:700}
+
+.date-pill{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600}
+
+.person-row{display:flex;justify-content:space-between;align-items:center}
+.person-avatar{width:36px;height:36px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0}
+.person-info{display:flex;align-items:center;gap:12px}
+
+.warn-box{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:16px;margin-top:20px}
+.warn-title{font-size:13px;font-weight:700;color:#92400e;margin-bottom:4px}
+.warn-text{font-size:12px;color:#92400e;line-height:1.7}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+@media(max-width:600px){
+.grid2,.grid3,.grid4,.two-col{grid-template-columns:1fr}
+.kpi-grid{grid-template-columns:1fr 1fr}
+.header{padding:12px 16px}
+.tabs{padding:10px 16px 0}
+.content{padding:16px 16px 60px}
+}
+</style>
+
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+var STORAGE_KEY = "trust-manager-data";
+var TRUST_TYPES = ["Discretionary","Bare","Interest in Possession","Life Interest","Will Trust","Mixed","Charitable"];
+var COLORS = ["#1e40af","#059669","#d97706","#dc2626","#7c3aed","#0891b2","#be185d","#65a30d"];
+var METHODS = ["Bank Transfer","Cheque","Cash","In-Kind"];
+var DEC_CATS = ["Distribution","Investment","Tax","Administrative","Beneficiary Change","Trustee Change","Property","Other"];
+var INC_TYPES = ["Interest","Dividends","Rental Income","Sale Proceeds","Insurance","Other"];
+var EXP_CATS = ["Legal Fees","Accountancy","Tax Payment","Insurance","Property Maintenance","Bank Charges","Valuation","Other"];
+
+var state = { trusts:[], beneficiaries:[], trustees:[], distributions:[], decisions:[], income:[], expenses:[] };
+var activeTrust = null;
+var currentView = "dashboard";
+var modalType = null;
+var modalData = {};
+
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function fmt(n){return"\u00A3"+Number(n).toLocaleString("en-GB",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function fmtDate(d){if(!d)return"\u2014";return new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})}
+function getToday(){return new Date().toISOString().split("T")[0]}
+function daysBetween(a,b){return Math.round((new Date(b)-new Date(a))/86400000)}
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
+
+function load(){try{var s=localStorage.getItem(STORAGE_KEY);if(s){var p=JSON.parse(s);state.trusts=p.trusts||[];state.beneficiaries=p.beneficiaries||[];state.trustees=p.trustees||[];state.distributions=p.distributions||[];state.decisions=p.decisions||[];state.income=p.income||[];state.expenses=p.expenses||[];if(state.trusts.length>0)activeTrust=state.trusts[0].id}}catch(e){}}
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){}}
+
+function getTrust(){return state.trusts.find(function(t){return t.id===activeTrust})}
+function getBens(){return state.beneficiaries.filter(function(b){return b.trustId===activeTrust})}
+function getTrus(){return state.trustees.filter(function(t){return t.trustId===activeTrust})}
+function getDists(){return state.distributions.filter(function(d){return d.trustId===activeTrust}).sort(function(a,b){return new Date(b.date)-new Date(a.date)})}
+function getDecs(){return state.decisions.filter(function(d){return d.trustId===activeTrust}).sort(function(a,b){return new Date(b.date)-new Date(a.date)})}
+function getIncs(){return state.income.filter(function(i){return i.trustId===activeTrust})}
+function getExps(){return state.expenses.filter(function(e){return e.trustId===activeTrust})}
+function getBenName(id){var b=getBens().find(function(x){return x.id===id});return b?b.name:"Unknown"}
+
+function getStats(){
+  var t=getTrust();if(!t)return null;
+  var dists=getDists(),incs=getIncs(),exps=getExps(),bens=getBens();
+  var totalDist=dists.reduce(function(s,d){return s+Number(d.amount)},0);
+  var totalInc=incs.reduce(function(s,i){return s+Number(i.amount)},0);
+  var totalExp=exps.reduce(function(s,e){return s+Number(e.amount)},0);
+  var balance=Number(t.initialValue||0)+totalInc-totalDist-totalExp;
+  var perBen=bens.map(function(b){var bd=dists.filter(function(d){return d.beneficiaryId===b.id});return{id:b.id,name:b.name,total:bd.reduce(function(s,d){return s+Number(d.amount)},0)}});
+  var keyDates=[];
+  if(t.established){
+    var est=new Date(t.established);
+    for(var i=1;i<=3;i++){var a=new Date(est);a.setFullYear(a.getFullYear()+i*10);if(a>new Date()){keyDates.push({date:a.toISOString().split("T")[0],label:(i*10)+"-Year Anniversary Charge",daysUntil:daysBetween(getToday(),a.toISOString().split("T")[0])});break}}
+    var now=new Date();var yr=now.getMonth()>=1?now.getFullYear()+1:now.getFullYear();var sa=yr+"-01-31";
+    keyDates.push({date:sa,label:"SA900 Tax Return Due ("+(yr-1)+"/"+yr+")",daysUntil:daysBetween(getToday(),sa)});
+    keyDates.push({date:null,label:"TRS Update Due Within 90 Days of Change",daysUntil:null});
+  }
+  return{totalDist:totalDist,totalInc:totalInc,totalExp:totalExp,balance:balance,perBen:perBen,keyDates:keyDates}
+}
+
+function datePillColor(d){if(d<60)return"background:#fef2f2;color:#dc2626";if(d<180)return"background:#fffbeb;color:#d97706";return"background:#f0fdf4;color:#059669"}
+
+function openModal(type,data){modalType=type;modalData=data||{};render()}
+function closeModal(){modalType=null;modalData={};render()}
+function setView(v){currentView=v;render();window.scrollTo(0,0)}
+
+function render(){
+  var app=document.getElementById("app");
+  var t=getTrust();
+  var html="";
+
+  // Header
+  html+='<div class="header"><div><h1>Trust Manager</h1><div class="header-sub">FOR UK FAMILY TRUSTEES</div></div><div class="header-actions">';
+  if(state.trusts.length>0){
+    html+='<select onchange="activeTrust=this.value;currentView=\'dashboard\';render()">';
+    state.trusts.forEach(function(tr){html+='<option value="'+tr.id+'"'+(tr.id===activeTrust?' selected':'')+'>'+esc(tr.name)+'</option>'});
+    html+='</select>';
+  }
+  html+='<button class="btn-header" onclick="openModal(\'trust\')">+ New Trust</button>';
+  html+='</div></div>';
+
+  if(!t){
+    html+='<div class="empty"><div class="empty-icon">\u2696</div><h2 style="font-size:22px;margin-bottom:8px">Welcome to Trust Manager</h2><p style="color:var(--muted);font-size:14px;line-height:1.7;max-width:400px;margin:0 auto 20px">A simple tool to manage trust distributions, track decisions, and stay compliant.</p><button class="btn btn-primary" onclick="openModal(\'trust\')">Set Up Your First Trust</button></div>';
+  } else {
+    // Tabs
+    html+='<div class="tabs">';
+    [["dashboard","Overview"],["distributions","Distributions"],["decisions","Decision Log"],["accounts","Trust Accounts"],["people","People"],["dates","Key Dates"]].forEach(function(tab){
+      html+='<button class="tab'+(currentView===tab[0]?' active':'')+'" onclick="setView(\''+tab[0]+'\')">'+tab[1]+'</button>';
+    });
+    html+='</div>';
+
+    html+='<div class="content">';
+    var stats=getStats();
+
+    if(currentView==="dashboard"&&stats){
+      html+='<div class="card" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px"><div><h2 style="font-size:20px">'+esc(t.name)+'</h2><div style="font-size:13px;color:var(--muted);margin-top:4px">'+esc(t.type)+' Trust \u00B7 Est. '+fmtDate(t.established)+' \u00B7 '+getBens().length+' beneficiar'+(getBens().length!==1?'ies':'y')+' \u00B7 '+getTrus().length+' trustee'+(getTrus().length!==1?'s':'')+'</div></div><button class="btn btn-ghost btn-sm" onclick="openModal(\'trust\','+JSON.stringify(t).replace(/"/g,'&quot;')+')">Edit</button></div>';
+
+      html+='<div class="kpi-grid">';
+      [{l:"Current Balance",v:fmt(stats.balance),c:stats.balance>=0?"var(--green)":"var(--red)"},{l:"Total Distributed",v:fmt(stats.totalDist),c:"var(--navy)"},{l:"Total Income",v:fmt(stats.totalInc),c:"var(--green)"},{l:"Total Expenses",v:fmt(stats.totalExp),c:"var(--amber)"}].forEach(function(k){
+        html+='<div class="card kpi"><div class="kpi-label">'+k.l+'</div><div class="kpi-value" style="color:'+k.c+'">'+k.v+'</div></div>';
+      });
+      html+='</div>';
+
+      html+='<div class="two-col">';
+      // Per beneficiary
+      html+='<div class="card"><div class="kpi-label" style="margin-bottom:12px">DISTRIBUTED PER BENEFICIARY</div>';
+      var totalForBar=stats.perBen.reduce(function(s,b){return s+b.total},0);
+      if(totalForBar>0){
+        stats.perBen.forEach(function(b,i){
+          var pct=totalForBar>0?(b.total/totalForBar*100):0;
+          html+='<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="font-weight:600">'+esc(b.name)+'</span><span style="color:var(--muted)">'+fmt(b.total)+'</span></div><div style="height:8px;background:var(--warm);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+COLORS[i%COLORS.length]+';border-radius:4px"></div></div></div>';
+        });
+      } else { html+='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No distributions yet</div>'; }
+      html+='</div>';
+
+      // Key dates
+      html+='<div class="card"><div class="kpi-label" style="margin-bottom:12px">UPCOMING DATES</div>';
+      stats.keyDates.forEach(function(d,i){
+        html+='<div style="padding:10px 0;'+(i<stats.keyDates.length-1?'border-bottom:1px solid var(--border);':'')+'display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:600">'+esc(d.label)+'</div><div style="font-size:11px;color:var(--muted)">'+(d.date?fmtDate(d.date):'Ongoing')+'</div></div>';
+        if(d.daysUntil!==null)html+='<span class="date-pill" style="'+datePillColor(d.daysUntil)+'">'+d.daysUntil+'d</span>';
+        html+='</div>';
+      });
+      html+='</div></div>';
+    }
+
+    if(currentView==="distributions"){
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h2 style="font-size:20px">Distributions</h2><button class="btn btn-accent btn-sm" onclick="openModal(\'distribution\')">+ Record</button></div>';
+      var dists=getDists();
+      if(dists.length===0){html+='<div class="card empty" style="padding:40px">No distributions recorded yet.</div>';}
+      else dists.forEach(function(d){
+        html+='<div class="card card-clickable" onclick="openModal(\'distribution\','+JSON.stringify(d).replace(/"/g,'&quot;')+')"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-weight:700;font-size:15px">'+fmt(d.amount)+'</span><span style="font-size:12px;color:var(--muted)">to</span><span style="font-weight:600;color:var(--accent)">'+esc(getBenName(d.beneficiaryId))+'</span></div><div style="font-size:12px;color:var(--muted)">'+fmtDate(d.date)+' \u00B7 '+esc(d.method)+(d.reason?' \u00B7 '+esc(d.reason):'')+'</div>'+(d.approvedBy?'<div style="font-size:11px;color:var(--muted);margin-top:4px">Approved by: '+esc(d.approvedBy)+'</div>':'')+'</div>';
+      });
+    }
+
+    if(currentView==="decisions"){
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div><h2 style="font-size:20px">Decision Log</h2><p style="font-size:12px;color:var(--muted);margin-top:4px">Your legal safeguard under the Trustee Act 2000.</p></div><button class="btn btn-accent btn-sm" onclick="openModal(\'decision\')">+ Log</button></div>';
+      var decs=getDecs();
+      if(decs.length===0){html+='<div class="card empty" style="padding:40px">No decisions logged yet.</div>';}
+      else decs.forEach(function(d){
+        html+='<div class="card card-clickable" onclick="openModal(\'decision\','+JSON.stringify(d).replace(/"/g,'&quot;')+')"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="badge" style="background:#f0fdf4;color:#059669">'+esc(d.category)+'</span><span style="font-size:12px;color:var(--muted)">'+fmtDate(d.date)+'</span></div><div style="font-weight:700;font-size:14px;margin-bottom:4px">'+esc(d.title)+'</div><div style="font-size:13px;color:#57534e;line-height:1.6;white-space:pre-wrap">'+esc(d.reasoning)+'</div>'+(d.attendees?'<div style="font-size:11px;color:var(--muted);margin-top:8px">Present: '+esc(d.attendees)+'</div>':'')+'</div>';
+      });
+    }
+
+    if(currentView==="accounts"){
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h2 style="font-size:20px">Trust Accounts</h2><div style="display:flex;gap:8px"><button class="btn btn-accent btn-sm" onclick="openModal(\'income\')">+ Income</button><button class="btn btn-ghost btn-sm" onclick="openModal(\'expense\')">+ Expense</button></div></div>';
+      html+='<div class="card" style="margin-bottom:14px"><div class="grid4" style="text-align:center">';
+      html+='<div><div class="kpi-label">Opening</div><div style="font-size:18px;font-weight:700">'+fmt(t.initialValue||0)+'</div></div>';
+      html+='<div><div class="kpi-label">+ Income</div><div style="font-size:18px;font-weight:700;color:var(--green)">'+fmt(stats?stats.totalInc:0)+'</div></div>';
+      html+='<div><div class="kpi-label">- Outflows</div><div style="font-size:18px;font-weight:700;color:var(--red)">'+fmt((stats?stats.totalDist:0)+(stats?stats.totalExp:0))+'</div></div>';
+      html+='<div><div class="kpi-label">= Balance</div><div style="font-size:18px;font-weight:700;color:var(--accent)">'+fmt(stats?stats.balance:0)+'</div></div>';
+      html+='</div></div>';
+
+      var allTx=[].concat(getIncs().map(function(i){return Object.assign({},i,{txType:"income"})})).concat(getExps().map(function(e){return Object.assign({},e,{txType:"expense"})})).concat(getDists().map(function(d){return Object.assign({},d,{txType:"distribution"})})).sort(function(a,b){return new Date(b.date)-new Date(a.date)});
+      html+='<div class="card"><div class="kpi-label" style="margin-bottom:12px">ALL TRANSACTIONS</div>';
+      if(allTx.length===0){html+='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">No transactions</div>';}
+      else allTx.forEach(function(tx){
+        var label=tx.txType==="income"?(tx.source||tx.type):tx.txType==="expense"?(tx.description||tx.category):"Distribution to "+getBenName(tx.beneficiaryId);
+        html+='<div class="tx-row"><div><div class="tx-label">'+esc(label)+'</div><div class="tx-sub">'+fmtDate(tx.date)+' \u00B7 '+tx.txType+'</div></div><div class="tx-amount" style="color:'+(tx.txType==="income"?"var(--green)":"var(--red)")+'">'+(tx.txType==="income"?"+":"\u2212")+fmt(tx.amount)+'</div></div>';
+      });
+      html+='</div>';
+    }
+
+    if(currentView==="people"){
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h2 style="font-size:20px">Beneficiaries</h2><button class="btn btn-accent btn-sm" onclick="openModal(\'beneficiary\')">+ Add</button></div>';
+      var bens=getBens();
+      if(bens.length===0){html+='<div class="card" style="text-align:center;color:var(--muted);margin-bottom:28px">No beneficiaries</div>';}
+      else{bens.forEach(function(b,i){
+        var rec=stats?((stats.perBen.find(function(x){return x.id===b.id})||{}).total||0):0;
+        html+='<div class="card card-clickable" onclick="openModal(\'beneficiary\','+JSON.stringify(b).replace(/"/g,'&quot;')+')"><div class="person-row"><div class="person-info"><div class="person-avatar" style="background:'+COLORS[i%COLORS.length]+'22;color:'+COLORS[i%COLORS.length]+'">'+esc(b.name.charAt(0))+'</div><div><div style="font-weight:700;font-size:14px">'+esc(b.name)+'</div><div style="font-size:12px;color:var(--muted)">'+esc(b.relationship||"")+(b.dob?' \u00B7 DOB: '+fmtDate(b.dob):'')+'</div></div></div><div style="text-align:right"><div style="font-weight:700">'+fmt(rec)+'</div><div style="font-size:11px;color:var(--muted)">received</div></div></div></div>';
+      });html+='<div style="margin-bottom:28px"></div>';}
+
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><h2 style="font-size:20px">Trustees</h2><button class="btn btn-accent btn-sm" onclick="openModal(\'trustee\')">+ Add</button></div>';
+      var trus=getTrus();
+      if(trus.length===0){html+='<div class="card" style="text-align:center;color:var(--muted)">No trustees</div>';}
+      else trus.forEach(function(tr){
+        html+='<div class="card card-clickable" onclick="openModal(\'trustee\','+JSON.stringify(tr).replace(/"/g,'&quot;')+')"><div style="font-weight:700;font-size:14px">'+esc(tr.name)+(tr.professional?' <span class="badge" style="background:#eff6ff;color:var(--accent)">Professional</span>':'')+'</div><div style="font-size:12px;color:var(--muted)">'+esc(tr.role)+' \u00B7 Appointed '+fmtDate(tr.appointedDate)+'</div></div>';
+      });
+    }
+
+    if(currentView==="dates"){
+      html+='<h2 style="font-size:20px;margin-bottom:4px">Key Dates</h2><p style="font-size:13px;color:var(--muted);margin-bottom:18px">Auto-generated from your trust details.</p>';
+      if(stats)stats.keyDates.forEach(function(d){
+        html+='<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:700;font-size:14px">'+esc(d.label)+'</div><div style="font-size:12px;color:var(--muted);margin-top:2px">'+(d.date?fmtDate(d.date):'Ongoing')+'</div></div>';
+        if(d.daysUntil!==null)html+='<div style="text-align:right"><div style="font-size:20px;font-weight:700;'+datePillColor(d.daysUntil).replace(/background:[^;]+;/,"")+'">'+d.daysUntil+'d</div><div style="font-size:10px;color:var(--muted)">remaining</div></div>';
+        html+='</div>';
+      });
+      html+='<div class="warn-box"><div class="warn-title">Trustee Reminders</div><div class="warn-text">Keep accurate records, file SA900 annually, update TRS within 90 days of changes, act in beneficiaries\' best interests, review investments under the Trustee Act 2000.</div></div>';
+    }
+
+    html+='</div>';
+  }
+
+  // Modal
+  if(modalType){
+    html+='<div class="modal-overlay" onclick="closeModal()"><div class="modal" onclick="event.stopPropagation()">';
+    html+='<div class="modal-header"><h3>'+getModalTitle()+'</h3><button class="modal-close" onclick="closeModal()">\u00D7</button></div>';
+    html+=getModalBody();
+    html+='</div></div>';
+  }
+
+  app.innerHTML=html;
+}
+
+function getModalTitle(){
+  var titles={trust:modalData.id?"Edit Trust":"New Trust",beneficiary:modalData.id?"Edit Beneficiary":"Add Beneficiary",trustee:modalData.id?"Edit Trustee":"Add Trustee",distribution:modalData.id?"Edit Distribution":"Record Distribution",decision:modalData.id?"Edit Decision":"Log Decision",income:"Record Income",expense:"Record Expense"};
+  return titles[modalType]||"";
+}
+
+function getModalBody(){
+  var h="",d=modalData;
+  if(modalType==="trust"){
+    h+='<div class="form-group"><label class="label">Trust Name</label><input class="input" id="m-name" value="'+esc(d.name||"")+'" placeholder="e.g. Smith Family Trust"></div>';
+    h+='<div class="grid2"><div class="form-group"><label class="label">Type</label><select class="select" id="m-type">'+TRUST_TYPES.map(function(t){return'<option'+(t===(d.type||"Discretionary")?" selected":"")+'>'+t+'</option>'}).join("")+'</select></div>';
+    h+='<div class="form-group"><label class="label">Established</label><input class="input" type="date" id="m-established" value="'+(d.established||"")+'"></div></div>';
+    h+='<div class="form-group"><label class="label">Initial Value (\u00A3)</label><input class="input" type="number" step="0.01" id="m-value" value="'+(d.initialValue||"")+'"></div>';
+    h+='<div class="form-group"><label class="label">Notes</label><textarea class="textarea" id="m-notes" placeholder="Solicitor, reference numbers...">'+(d.notes||"")+'</textarea></div>';
+
+```
+h+='<div class="form-actions"><button class="btn btn-primary" onclick="saveTrust()">Save</button>';
+if(d.id)h+='<button class="btn btn-danger" onclick="deleteItem(\'trusts\',\''+d.id+'\')">Delete</button>';
+h+='</div>';
+```
+
+}
+if(modalType===“beneficiary”){
+h+=’<div class="form-group"><label class="label">Full Name</label><input class=“input” id=“m-name” value=”’+esc(d.name||””)+’”></div>’;
+h+=’<div class="grid2"><div class="form-group"><label class="label">Relationship</label><input class=“input” id=“m-rel” value=”’+esc(d.relationship||””)+’” placeholder=“e.g. Son”></div><div class="form-group"><label class="label">Date of Birth</label><input class=“input” type=“date” id=“m-dob” value=”’+(d.dob||””)+’”></div></div>’;
+h+=’<div class="form-group"><label class="label">Notes</label><textarea class="textarea" id="m-notes">’+(d.notes||””)+’</textarea></div>’;
+h+=’<div class="form-actions"><button class="btn btn-primary" onclick="saveBen()">Save</button>’;
+if(d.id)h+=’<button class="btn btn-danger" onclick="deleteItem(\'beneficiaries\',\''+d.id+'\')">Delete</button>’;
+h+=’</div>’;
+}
+if(modalType===“trustee”){
+h+=’<div class="form-group"><label class="label">Full Name</label><input class=“input” id=“m-name” value=”’+esc(d.name||””)+’”></div>’;
+h+=’<div class="grid2"><div class="form-group"><label class="label">Role</label><input class=“input” id=“m-role” value=”’+esc(d.role||“Trustee”)+’”></div><div class="form-group"><label class="label">Appointed</label><input class=“input” type=“date” id=“m-date” value=”’+(d.appointedDate||””)+’”></div></div>’;
+h+=’<div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px"><input type=“checkbox” id=“m-pro”’+(d.professional?” checked”:””)+’ style=“width:16px;height:16px”> Professional trustee</label></div>’;
+h+=’<div class="form-actions"><button class="btn btn-primary" onclick="saveTru()">Save</button>’;
+if(d.id)h+=’<button class="btn btn-danger" onclick="deleteItem(\'trustees\',\''+d.id+'\')">Delete</button>’;
+h+=’</div>’;
+}
+if(modalType===“distribution”){
+h+=’<div class="form-group"><label class="label">Beneficiary</label><select class="select" id="m-ben"><option value="">Select…</option>’+getBens().map(function(b){return’<option value=”’+b.id+’”’+(b.id===d.beneficiaryId?” selected”:””)+’>’+esc(b.name)+’</option>’}).join(””)+’</select></div>’;
+h+=’<div class="grid3"><div class="form-group"><label class="label">Amount (\u00A3)</label><input class=“input” type=“number” step=“0.01” id=“m-amount” value=”’+(d.amount||””)+’”></div><div class="form-group"><label class="label">Date</label><input class="input" type="date" id="m-date" value="'+(d.date||getToday())+'"></div><div class="form-group"><label class="label">Method</label><select class="select" id="m-method">’+METHODS.map(function(m){return’<option’+(m===(d.method||“Bank Transfer”)?” selected”:””)+’>’+m+’</option>’}).join(””)+’</select></div></div>’;
+h+=’<div class="form-group"><label class="label">Reason</label><input class=“input” id=“m-reason” value=”’+esc(d.reason||””)+’” placeholder=“e.g. University tuition”></div>’;
+h+=’<div class="form-group"><label class="label">Approved By</label><input class=“input” id=“m-approved” value=”’+esc(d.approvedBy||””)+’”></div>’;
+h+=’<div class="form-actions"><button class="btn btn-primary" onclick="saveDist()">Save</button>’;
+if(d.id)h+=’<button class="btn btn-danger" onclick="deleteItem(\'distributions\',\''+d.id+'\')">Delete</button>’;
+h+=’</div>’;
+}
+if(modalType===“decision”){
+h+=’<div class="grid2"><div class="form-group"><label class="label">Category</label><select class="select" id="m-cat">’+DEC_CATS.map(function(c){return’<option’+(c===(d.category||“Distribution”)?” selected”:””)+’>’+c+’</option>’}).join(””)+’</select></div><div class="form-group"><label class="label">Date</label><input class="input" type="date" id="m-date" value="'+(d.date||getToday())+'"></div></div>’;
+h+=’<div class="form-group"><label class="label">Decision Title</label><input class=“input” id=“m-title” value=”’+esc(d.title||””)+’” placeholder=“e.g. Approved distribution”></div>’;
+h+=’<div class="form-group"><label class="label">Reasoning</label><textarea class="textarea" id="m-reasoning" style="min-height:120px" placeholder="Document WHY. This is your legal protection.">’+(d.reasoning||””)+’</textarea></div>’;
+h+=’<div class="form-group"><label class="label">Trustees Present</label><input class=“input” id=“m-attendees” value=”’+esc(d.attendees||””)+’”></div>’;
+h+=’<div class="form-actions"><button class="btn btn-primary" onclick="saveDec()">Save</button>’;
+if(d.id)h+=’<button class="btn btn-danger" onclick="deleteItem(\'decisions\',\''+d.id+'\')">Delete</button>’;
+h+=’</div>’;
+}
+if(modalType===“income”){
+h+=’<div class="grid3"><div class="form-group"><label class="label">Amount (\u00A3)</label><input class=“input” type=“number” step=“0.01” id=“m-amount” value=”’+(d.amount||””)+’”></div><div class="form-group"><label class="label">Date</label><input class="input" type="date" id="m-date" value="'+(d.date||getToday())+'"></div><div class="form-group"><label class="label">Type</label><select class="select" id="m-type">’+INC_TYPES.map(function(t){return’<option’+(t===(d.type||“Interest”)?” selected”:””)+’>’+t+’</option>’}).join(””)+’</select></div></div>’;
+h+=’<div class="form-group"><label class="label">Source</label><input class=“input” id=“m-source” value=”’+esc(d.source||””)+’” placeholder=“e.g. Trust savings account”></div>’;
+h+=’<div class="form-actions"><button class="btn btn-primary" onclick="saveInc()">Save</button></div>’;
+}
+if(modalType===“expense”){
+h+=’<div class="grid3"><div class="form-group"><label class="label">Amount (\u00A3)</label><input class=“input” type=“number” step=“0.01” id=“m-amount” value=”’+(d.amount||””)+’”></div><div class="form-group"><label class="label">Date</label><input class="input" type="date" id="m-date" value="'+(d.date||getToday())+'"></div><div class="form-group"><label class="label">Category</label><select class="select" id="m-cat">’+EXP_CATS.map(function(c){return’<option’+(c===(d.category||“Legal Fees”)?” selected”:””)+’>’+c+’</option>’}).join(””)+’</select></div></div>’;
+h+=’<div class="form-group"><label class="label">Description</label><input class=“input” id=“m-desc” value=”’+esc(d.description||””)+’”></div>’;
+h+=’<div class="form-actions"><button class="btn btn-primary" onclick="saveExp()">Save</button></div>’;
+}
+return h;
+}
+
+function saveTrust(){var n=document.getElementById(“m-name”).value;if(!n)return;var t={id:modalData.id||genId(),name:n,type:document.getElementById(“m-type”).value,established:document.getElementById(“m-established”).value||getToday(),initialValue:Number(document.getElementById(“m-value”).value||0),notes:document.getElementById(“m-notes”).value};if(modalData.id){state.trusts=state.trusts.map(function(x){return x.id===modalData.id?t:x})}else{state.trusts.push(t)}if(!activeTrust)activeTrust=t.id;save();closeModal()}
+function saveBen(){var n=document.getElementById(“m-name”).value;if(!n)return;var b={id:modalData.id||genId(),trustId:activeTrust,name:n,relationship:document.getElementById(“m-rel”).value,dob:document.getElementById(“m-dob”).value,notes:document.getElementById(“m-notes”).value};if(modalData.id){state.beneficiaries=state.beneficiaries.map(function(x){return x.id===modalData.id?b:x})}else{state.beneficiaries.push(b)}save();closeModal()}
+function saveTru(){var n=document.getElementById(“m-name”).value;if(!n)return;var t={id:modalData.id||genId(),trustId:activeTrust,name:n,role:document.getElementById(“m-role”).value,appointedDate:document.getElementById(“m-date”).value||getToday(),professional:document.getElementById(“m-pro”).checked};if(modalData.id){state.trustees=state.trustees.map(function(x){return x.id===modalData.id?t:x})}else{state.trustees.push(t)}save();closeModal()}
+function saveDist(){var ben=document.getElementById(“m-ben”).value;var amt=document.getElementById(“m-amount”).value;if(!ben||!amt)return;var d={id:modalData.id||genId(),trustId:activeTrust,beneficiaryId:ben,amount:Number(amt),date:document.getElementById(“m-date”).value||getToday(),reason:document.getElementById(“m-reason”).value,approvedBy:document.getElementById(“m-approved”).value,method:document.getElementById(“m-method”).value};if(modalData.id){state.distributions=state.distributions.map(function(x){return x.id===modalData.id?d:x})}else{state.distributions.push(d)}save();closeModal()}
+function saveDec(){var title=document.getElementById(“m-title”).value;if(!title)return;var d={id:modalData.id||genId(),trustId:activeTrust,title:title,reasoning:document.getElementById(“m-reasoning”).value,date:document.getElementById(“m-date”).value||getToday(),category:document.getElementById(“m-cat”).value,attendees:document.getElementById(“m-attendees”).value};if(modalData.id){state.decisions=state.decisions.map(function(x){return x.id===modalData.id?d:x})}else{state.decisions.push(d)}save();closeModal()}
+function saveInc(){var amt=document.getElementById(“m-amount”).value;if(!amt)return;var i={id:modalData.id||genId(),trustId:activeTrust,amount:Number(amt),date:document.getElementById(“m-date”).value||getToday(),source:document.getElementById(“m-source”).value,type:document.getElementById(“m-type”).value};if(modalData.id){state.income=state.income.map(function(x){return x.id===modalData.id?i:x})}else{state.income.push(i)}save();closeModal()}
+function saveExp(){var amt=document.getElementById(“m-amount”).value;if(!amt)return;var e={id:modalData.id||genId(),trustId:activeTrust,amount:Number(amt),date:document.getElementById(“m-date”).value||getToday(),description:document.getElementById(“m-desc”).value,category:document.getElementById(“m-cat”).value};if(modalData.id){state.expenses=state.expenses.map(function(x){return x.id===modalData.id?e:x})}else{state.expenses.push(e)}save();closeModal()}
+function deleteItem(key,id){state[key]=state[key].filter(function(x){return x.id!==id});if(key===“trusts”){activeTrust=state.trusts.length>0?state.trusts[0].id:null}save();closeModal()}
+
+load();
+render();
+</script>
+
+</body>
+</html>
